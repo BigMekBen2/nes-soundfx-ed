@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Media;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Microsoft.Win32;
 using SoundFxEditor.Core.Export;
+using SoundFxEditor.Core.IO;
 using SoundFxEditor.Core.Models;
 using SoundFxEditor.Core.Stamps;
 using SoundFxEditor.Core.Synthesis;
@@ -35,11 +39,49 @@ public partial class MainWindow : Window
     private const int SI_Duty = 5;
     private const int SI_Duration = 6;
 
+    // Undo/Redo
+    private readonly Stack<string> _undoStack = new();
+    private readonly Stack<string> _redoStack = new();
+
+    private string Snapshot() => JsonSerializer.Serialize(_currentSound);
+    private SoundEffect Restore(string json) => JsonSerializer.Deserialize<SoundEffect>(json)!;
+
+    private void PushUndo()
+    {
+        _undoStack.Push(Snapshot());
+        _redoStack.Clear();
+    }
+
+    private void Undo()
+    {
+        if (_undoStack.Count == 0) return;
+        _redoStack.Push(Snapshot());
+        LoadSound(Restore(_undoStack.Pop()), pushUndo: false);
+    }
+
+    private void Redo()
+    {
+        if (_redoStack.Count == 0) return;
+        _undoStack.Push(Snapshot());
+        LoadSound(Restore(_redoStack.Pop()), pushUndo: false);
+    }
+
     public MainWindow()
     {
         InitializeComponent();
         BuildChannelPanels();
         LoadSound(new SoundEffect());
+
+        KeyDown += (_, e) =>
+        {
+            if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control) Undo();
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control) Redo();
+            else if (e.Key == Key.Space && Keyboard.Modifiers == ModifierKeys.None) Play_Click(this, new RoutedEventArgs());
+            else if (e.Key == Key.S && Keyboard.Modifiers == ModifierKeys.Control) SaveProject();
+            else if (e.Key == Key.O && Keyboard.Modifiers == ModifierKeys.Control) OpenProject();
+            else if (e.Key == Key.N && Keyboard.Modifiers == ModifierKeys.Control) NewSound_Click(this, new RoutedEventArgs());
+            else if (e.Key == Key.E && Keyboard.Modifiers == ModifierKeys.Control) Export_Click(this, new RoutedEventArgs());
+        };
     }
 
     private void BuildChannelPanels()
@@ -132,11 +174,13 @@ public partial class MainWindow : Window
         panel.Children.Add(LabeledRow("Duration Frames:", MakeSlider(ch, SI_Duration, 1, 120)));
     }
 
-    private void LoadSound(SoundEffect sound)
+    private void LoadSound(SoundEffect sound, bool pushUndo = true)
     {
+        if (pushUndo) PushUndo();
         _loading = true;
         _currentSound = sound;
         TxtName.Text = sound.Name;
+        Title = $"NES Sound FX Editor — {_currentSound.Name}";
         RefreshFromModel();
         _loading = false;
         RedrawWaveform();
@@ -169,6 +213,7 @@ public partial class MainWindow : Window
 
     private void SliderChanged(int ch)
     {
+        if (!_loading) PushUndo();
         var c = _currentSound.Channels[ch];
         c.IsActive = _activeChecks[ch]?.IsChecked == true;
         c.InitialPeriod = (int)(_sliders[ch, SI_Period]?.Value ?? 0);
@@ -214,6 +259,21 @@ public partial class MainWindow : Window
         WaveformCanvas.Children.Add(poly);
     }
 
+    // Save/Load
+    private void SaveProject()
+    {
+        var dlg = new SaveFileDialog { Filter = "NES FX Project|*.nesfx", DefaultExt = ".nesfx" };
+        if (dlg.ShowDialog() != true) return;
+        ProjectFile.Save(_currentSound, dlg.FileName);
+    }
+
+    private void OpenProject()
+    {
+        var dlg = new OpenFileDialog { Filter = "NES FX Project|*.nesfx" };
+        if (dlg.ShowDialog() != true) return;
+        LoadSound(ProjectFile.Load(dlg.FileName));
+    }
+
     // Event handlers
     private void StampBoing_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Boing());
     private void StampLaser_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Laser());
@@ -222,10 +282,16 @@ public partial class MainWindow : Window
     private void StampGunshot_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Gunshot());
 
     private void NewSound_Click(object sender, RoutedEventArgs e) => LoadSound(new SoundEffect());
+    private void BtnSave_Click(object sender, RoutedEventArgs e) => SaveProject();
+    private void BtnLoad_Click(object sender, RoutedEventArgs e) => OpenProject();
 
     private void TxtName_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if (!_loading) _currentSound.Name = TxtName.Text;
+        if (!_loading)
+        {
+            _currentSound.Name = TxtName.Text;
+            Title = $"NES Sound FX Editor — {_currentSound.Name}";
+        }
     }
 
     private void TabChannels_SelectionChanged(object sender, SelectionChangedEventArgs e)
