@@ -28,13 +28,32 @@ public static class SoundStamps
         })
     };
 
+    public static SoundEffect Gunshot() => new()
+    {
+        Name = "Gunshot",
+        Channels = MakeChannels(new SynthChannel
+        {
+            ChannelId = 3, IsActive = true,
+            InitialPeriod = 6, PeriodSweepRate = 1, SweepDuration = 20,
+            InitialVolume = 15, VolumeDecayPerFrame = 0,
+            DurationFrames = 30
+        },
+        new SynthChannel
+        {
+            ChannelId = 0, IsActive = true,
+            InitialPeriod = 800, PeriodSweepRate = 15, SweepDuration = 6,
+            InitialVolume = 8, VolumeDecayPerFrame = 2,
+            DutyCycle = 0, DurationFrames = 8
+        })
+    };
+
     public static SoundEffect BreakingGlass() => new()
     {
         Name = "Breaking Glass",
         Channels = MakeChannels(new SynthChannel
         {
             ChannelId = 3, IsActive = true,
-            InitialPeriod = 14, PeriodSweepRate = 0, SweepDuration = 0,
+            InitialPeriod = 2, PeriodSweepRate = 1, SweepDuration = 10,
             InitialVolume = 15, VolumeDecayPerFrame = 1,
             ShortMode = true, DurationFrames = 18
         })

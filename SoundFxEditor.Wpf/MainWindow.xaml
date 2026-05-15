@@ -114,6 +114,7 @@
                 <Button x:Name="BtnLaser" Content="LASER SHOT" Click="StampLaser_Click"/>
                 <Button x:Name="BtnGlass" Content="BREAK.GLASS" Click="StampGlass_Click"/>
                 <Button x:Name="BtnExplosion" Content="EXPLOSION" Click="StampExplosion_Click"/>
+                <Button x:Name="BtnGunshot" Content="GUNSHOT" Click="StampGunshot_Click"/>
                 <Separator Background="#00ff88" Margin="0,8"/>
                 <Button x:Name="BtnNew" Content="[ NEW ]" Click="NewSound_Click"/>
             </StackPanel>

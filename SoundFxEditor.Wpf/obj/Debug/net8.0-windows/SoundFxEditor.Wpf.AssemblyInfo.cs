@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SoundFxEditor.Wpf")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97056badc02083db0251486e1ce16d92f50f164e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e883c3de77bab998fcdad9ee795519eaf1c73501")]
 [assembly: System.Reflection.AssemblyProductAttribute("SoundFxEditor.Wpf")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SoundFxEditor.Wpf")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

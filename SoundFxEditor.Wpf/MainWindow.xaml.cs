@@ -219,6 +219,7 @@ public partial class MainWindow : Window
     private void StampLaser_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Laser());
     private void StampGlass_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.BreakingGlass());
     private void StampExplosion_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Explosion());
+    private void StampGunshot_Click(object sender, RoutedEventArgs e) => LoadSound(SoundStamps.Gunshot());
 
     private void NewSound_Click(object sender, RoutedEventArgs e) => LoadSound(new SoundEffect());
 
