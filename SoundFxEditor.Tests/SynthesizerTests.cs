@@ -55,6 +55,18 @@ public class SynthesizerTests
     }
 
     [Fact]
+    public void NsfExporter_ProducesValidNesmHeader()
+    {
+        var sound = SoundStamps.Boing();
+        using var ms = new MemoryStream();
+        NsfExporter.Export(sound, ms);
+        ms.Seek(0, SeekOrigin.Begin);
+        var magic = new byte[5];
+        ms.Read(magic, 0, 5);
+        Assert.Equal(new byte[] { 0x4E, 0x45, 0x53, 0x4D, 0x1A }, magic);
+    }
+
+    [Fact]
     public void WavExporter_ProducesValidRiffHeader()
     {
         var sound = SoundStamps.Boing();

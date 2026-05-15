@@ -172,6 +172,7 @@
                 <Button x:Name="BtnPlay" Content="[ PLAY ]" Width="80" Click="Play_Click"/>
                 <Button x:Name="BtnStop" Content="[ STOP ]" Width="80" Margin="8,2,0,2" Click="Stop_Click"/>
                 <Button x:Name="BtnExport" Content="[ EXPORT WAV ]" Width="120" Margin="8,2,0,2" Click="Export_Click"/>
+                <Button x:Name="BtnExportNsf" Content="[ EXPORT NSF ]" Width="120" Margin="8,2,0,2" Click="ExportNsf_Click"/>
             </StackPanel>
         </Border>
     </Grid>

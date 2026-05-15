@@ -263,6 +263,14 @@ public partial class MainWindow : Window
         MessageBox.Show($"Exported to {dlg.FileName}", "Export WAV", MessageBoxButton.OK);
     }
 
+    private void ExportNsf_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog { Filter = "NSF files|*.nsf", DefaultExt = ".nsf" };
+        if (dlg.ShowDialog() != true) return;
+        NsfExporter.Export(_currentSound, dlg.FileName);
+        MessageBox.Show($"Exported to {dlg.FileName}", "Export NSF", MessageBoxButton.OK);
+    }
+
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
