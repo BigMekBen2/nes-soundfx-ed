@@ -5,8 +5,33 @@
 A WPF-based sound effects editor that generates:
 1. **`.wav`** files for raylib-cs Windows game (uncompressed, zero latency)
 2. **`.nsf`** files for NES emulator testing
-3. **C header files (`.h`)** with byte arrays for NES ROM embedding
-4. **`.dat`** files for music/sound sequences (real-time synthesis in game)
+3. **C header files (`.h`)** with byte arrays for NES ROM embedding *(deferred — pending NES compiler maturity)*
+4. **`.dat`** files for raylib-cs game engine real-time synthesis *(deferred — pending game engine audio maturity)*
+
+**Build priority: `.wav` → `.nsf` → `.dat` → `.h`**
+
+## Decisions & Constraints
+
+- **Framework:** .NET 8.0-windows (WPF), matching nes-music-ed
+- **Audio playback:** Raw PCM synthesis — no NAudio. Same approach as nes-music-ed.
+- **NSF format:** Reuse nes-music-ed's 7-byte-per-frame layout (note-index + volume per channel) and its 6502 player code. Expanding to raw APU register writes is tracked in [issue #1](https://github.com/BigMekBen2/nes-soundfx-ed/issues/1).
+- **LFSR:** 15-bit, bits 0^1 feedback, bit 14 insertion. Short mode (93-step, bit 6 insertion) exposed as a per-channel toggle. See [nes-music-ed #6](https://github.com/BigMekBen2/nes-music-ed/issues/6) for adding it there too.
+- **WAV:** 44100 Hz, 16-bit, mono — same as nes-music-ed.
+- **`.dat` / `.h`:** Deferred until game engines (raylib-cs and NES) are more mature.
+
+## Code Reuse from nes-music-ed (`C:\clau\nes-music-ed`)
+
+Direct copy (zero or trivial changes):
+- `NESMusicEditor.Core/Synthesis/SquareOscillator.cs`
+- `NESMusicEditor.Core/Synthesis/TriangleOscillator.cs`
+- `NESMusicEditor.Core/Synthesis/NoiseGenerator.cs` *(add short-mode flag)*
+- `NESMusicEditor.Core/Synthesis/NoteToFrequency.cs`
+- `NESMusicEditor.Core/Export/WavExporter.cs` *(RIFF write logic)*
+
+Adapt (significant changes):
+- `NESMusicEditor.Core/Export/NsfExporter.cs` *(keep 6502 player bytes; replace frame data generation)*
+- `NESMusicEditor.Core/Synthesis/Envelope.cs` *(simplify: no sustain/release for one-shot FX)*
+- `NESMusicEditor.Core/Models/Instrument.cs` *(replace with SynthChannel model)*
 
 ## Architecture
 
@@ -18,7 +43,7 @@ Generates NES-authentic waveforms for real-time preview and export.
 **Channels:**
 - Pulse 1 & 2: Square waves with duty cycle, envelope, pitch sweep
 - Triangle: Fixed-amplitude triangle wave, pitch sweep
-- Noise: LFSR-based noise, pitch sweep (period-based)
+- Noise: LFSR-based noise, pitch sweep (period-based), short-mode toggle ($400E bit 7)
 
 **Per-channel state:**
 ```csharp
@@ -231,11 +256,12 @@ class SynthChannel
 **Deliverable:** Verified register sequences (testable against emulator).
 
 ### Phase 5: NSF Export (Week 4)
-- [ ] Research/implement NSF container format
-- [ ] Embed minimal NES driver code
-- [ ] Embed register sequence data
+- [ ] Adapt nes-music-ed's NSF container format (7-byte-per-frame: note-index + volume × 4 channels)
+- [ ] Reuse 6502 player code from nes-music-ed's `NsfExporter.cs` (lines 42-163)
+- [ ] Map SynthChannel sweep/decay params to per-frame note+volume sequences
 - [ ] Write NSF file
 - [ ] Test in FCEUX/Nestopia emulator
+- *Future: raw APU register writes — tracked in issue #1*
 
 **Deliverable:** Playable NSF files in emulator.
 
@@ -344,6 +370,12 @@ The editor exports `.dat` files (register sequences) that the game engine loads 
 2. **Integration tests** for register sequence generation
 3. **Manual testing**: Export sound → play in FCEUX → verify against editor preview
 4. **Performance**: Ensure synthesis doesn't cause audio glitches
+
+## Missed Requirements
+
+- **NSF format:** Use simpler 7-byte-per-frame note-index format (reusing nes-music-ed's 6502 player) rather than raw APU register writes. Raw register writes tracked for future expansion in issue #1.
+- **LFSR short mode:** Expose per-channel toggle in the UI for the noise channel ($400E bit 7). Not in nes-music-ed yet — tracked in nes-music-ed issue #6.
+- **`.dat` and `.h` export:** Deferred until raylib-cs and NES game engines are more mature. No timeline.
 
 ## Future Enhancements
 
