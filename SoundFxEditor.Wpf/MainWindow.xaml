@@ -1,0 +1,177 @@
+<Window x:Class="SoundFxEditor.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="NES Sound FX Editor" Height="600" Width="900"
+        Background="#1a1a2e" Foreground="#00ff88"
+        FontFamily="Consolas" FontSize="12">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#1a1a2e"/>
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="BorderBrush" Value="#00ff88"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#003322"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#00ff88"/>
+                                <Setter Property="Foreground" Value="#1a1a2e"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Slider">
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="Margin" Value="4,2"/>
+        </Style>
+
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="2,1"/>
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#0d0d1a"/>
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="BorderBrush" Value="#00ff88"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="CaretBrush" Value="#00ff88"/>
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="#1a1a2e"/>
+            <Setter Property="BorderBrush" Value="#00ff88"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="#0d0d1a"/>
+            <Setter Property="Foreground" Value="#00ff88"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="BorderBrush" Value="#00ff88"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border Name="Border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="1,1,1,0" Padding="6,2" Margin="1,0,0,0">
+                            <ContentPresenter x:Name="ContentSite"
+                                              ContentSource="Header"
+                                              HorizontalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#003322"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+
+        <!-- Left panel: stamps -->
+        <Border Grid.Column="0" Grid.Row="0" BorderBrush="#00ff88" BorderThickness="0,0,1,0" Margin="4">
+            <StackPanel Margin="8">
+                <Label Content="[ STAMPS ]" FontWeight="Bold" HorizontalAlignment="Center"/>
+                <Button x:Name="BtnBoing" Content="BOING" Click="StampBoing_Click"/>
+                <Button x:Name="BtnLaser" Content="LASER SHOT" Click="StampLaser_Click"/>
+                <Button x:Name="BtnGlass" Content="BREAK.GLASS" Click="StampGlass_Click"/>
+                <Button x:Name="BtnExplosion" Content="EXPLOSION" Click="StampExplosion_Click"/>
+                <Separator Background="#00ff88" Margin="0,8"/>
+                <Button x:Name="BtnNew" Content="[ NEW ]" Click="NewSound_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Center panel -->
+        <Grid Grid.Column="1" Grid.Row="0" Margin="8,4,8,4">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="110"/>
+            </Grid.RowDefinitions>
+
+            <!-- Sound name -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <Label Content="NAME:" VerticalAlignment="Center"/>
+                <TextBox x:Name="TxtName" Width="220" VerticalAlignment="Center"
+                         TextChanged="TxtName_TextChanged"/>
+            </StackPanel>
+
+            <!-- Channel tabs -->
+            <TabControl Grid.Row="1" x:Name="TabChannels" SelectionChanged="TabChannels_SelectionChanged">
+                <TabItem Header="PULSE 1" Tag="0">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelPulse1" Margin="8" Tag="0"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="PULSE 2" Tag="1">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelPulse2" Margin="8" Tag="1"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="TRIANGLE" Tag="2">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelTriangle" Margin="8" Tag="2"/>
+                    </ScrollViewer>
+                </TabItem>
+                <TabItem Header="NOISE" Tag="3">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelNoise" Margin="8" Tag="3"/>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <!-- Waveform canvas -->
+            <Border Grid.Row="2" BorderBrush="#00ff88" BorderThickness="1" Margin="0,4,0,0">
+                <Canvas x:Name="WaveformCanvas" Background="#0d0d1a" Height="100"/>
+            </Border>
+        </Grid>
+
+        <!-- Bottom bar -->
+        <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+                BorderBrush="#00ff88" BorderThickness="0,1,0,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0">
+                <Button x:Name="BtnPlay" Content="[ PLAY ]" Width="80" Click="Play_Click"/>
+                <Button x:Name="BtnStop" Content="[ STOP ]" Width="80" Margin="8,2,0,2" Click="Stop_Click"/>
+                <Button x:Name="BtnExport" Content="[ EXPORT WAV ]" Width="120" Margin="8,2,0,2" Click="Export_Click"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
